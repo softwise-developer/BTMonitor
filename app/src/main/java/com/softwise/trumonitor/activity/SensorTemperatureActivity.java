@@ -54,26 +54,7 @@ public class SensorTemperatureActivity extends AppCompatActivity implements Sens
     private SensorTempViewModel mSensorTempViewModel;
     private SensorsAdapter mSensorsAdapter;
     private String newline = TextUtil.newline_crlf;
-    private final BroadcastReceiver receiveData = new BroadcastReceiver() {
-        public void onReceive(Context context, Intent intent) {
-            try {
-                if (intent.getExtras() != null) {
-                    if (intent.getExtras().get("msg" )!= null) {
-                        EntitySensor unused = SensorTemperatureActivity.this.entitySensor = (EntitySensor) intent.getParcelableExtra("msg");
-                        SensorTemperatureActivity.this.setTempData(SensorTemperatureActivity.this.entitySensor);
-                    }
-                    if (intent.getExtras().get("error") != null) {
-                        SensorTemperatureActivity.this.showErrorDialog();
-                        return;
-                    }
-                    return;
-                }
-                Log.e("Extra", "Intent getExtras null");
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-    };
+    private BroadcastReceiver receiveData;
     /* access modifiers changed from: private */
     public SensorPresenter sensorPresenter;
 
@@ -109,6 +90,28 @@ public class SensorTemperatureActivity extends AppCompatActivity implements Sens
                     SensorTemperatureActivity.this.getDataFromLocalDB();
                 }
             });
+            receiveData = new BroadcastReceiver() {
+                public void onReceive(Context context, Intent intent) {
+                    try {
+                        if (intent.getExtras() != null) {
+                            if (intent.getExtras().get("msg" )!= null) {
+                                EntitySensor unused = SensorTemperatureActivity.this.entitySensor = (EntitySensor) intent.getParcelableExtra("msg");
+                                SensorTemperatureActivity.this.setTempData(SensorTemperatureActivity.this.entitySensor);
+                            }
+                            if (intent.getExtras().get("error") != null) {
+                                SensorTemperatureActivity.this.showErrorDialog();
+                                return;
+                            }
+                            return;
+                        }
+                        Log.e("Extra", "Intent getExtras null");
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+            };
+
+
         } catch (Exception e) {
             e.printStackTrace();
         }
