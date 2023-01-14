@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto" xmlns:aapt="http://schemas.android.com/aapt">
+    <item android:icon="@drawable/ic_baseline_update_disabled_24" android:id="@+id/mn_ble_shutdown" android:visible="false" android:title="@string/btn_shutdown" app:showAsAction="always"/>
+    <item android:icon="@drawable/ic_baseline_bluetooth_disabled_24" android:id="@+id/mn_ble_disconnect" android:title="@string/disconnect" app:showAsAction="ifRoom"/>
+    <item android:icon="@drawable/ic_baseline_exit_to_app_24" android:id="@+id/mn_logout" android:title="@string/lbl_logout" app:showAsAction="always"/>
+</menu>

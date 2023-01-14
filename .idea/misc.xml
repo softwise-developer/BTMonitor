@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="DesignSurface">
+    <option name="filePathToZoomLevelMap">
+      <map>
+        <entry key="..\:/AndroidProjects/BTMonitor/app/src/main/res/drawable/abc_ratingbar_indicator_material.xml" value="0.1125" />
+        <entry key="..\:/AndroidProjects/BTMonitor/app/src/main/res/drawable/custom_thumb.xml" value="0.1125" />
+        <entry key="..\:/AndroidProjects/BTMonitor/app/src/main/res/drawable/round_corner_button.xml" value="0.2203125" />
+        <entry key="..\:/AndroidProjects/BTMonitor/app/src/main/res/drawable/test_custom_background.xml" value="0.2203125" />
+        <entry key="..\:/AndroidProjects/BTMonitor/app/src/main/res/drawable/tooltip_frame_dark.xml" value="0.2203125" />
+        <entry key="..\:/AndroidProjects/BTMonitor/app/src/main/res/drawable/tooltip_frame_light.xml" value="0.2203125" />
+        <entry key="..\:/AndroidProjects/BTMonitor/app/src/main/res/layout/activity_assets_info.xml" value="0.1082427536231884" />
+        <entry key="..\:/AndroidProjects/BTMonitor/app/src/main/res/layout/activity_connectivity.xml" value="0.1" />
+        <entry key="..\:/AndroidProjects/BTMonitor/app/src/main/res/layout/activity_introduction.xml" value="0.1082427536231884" />
+        <entry key="..\:/AndroidProjects/BTMonitor/app/src/main/res/layout/activity_login.xml" value="0.1082427536231884" />
+        <entry key="..\:/AndroidProjects/BTMonitor/app/src/main/res/layout/activity_main.xml" value="0.1082427536231884" />
+        <entry key="..\:/AndroidProjects/BTMonitor/app/src/main/res/layout/activity_paired_device.xml" value="0.1" />
+        <entry key="..\:/AndroidProjects/BTMonitor/app/src/main/res/layout/activity_sensor_graph.xml" value="0.1" />
+        <entry key="..\:/AndroidProjects/BTMonitor/app/src/main/res/layout/activity_sensor_graph_new.xml" value="0.1" />
+        <entry key="..\:/AndroidProjects/BTMonitor/app/src/main/res/layout/activity_sensor_temperature.xml" value="0.1" />
+        <entry key="..\:/AndroidProjects/BTMonitor/app/src/main/res/layout/activity_splash_screen.xml" value="0.1" />
+        <entry key="..\:/AndroidProjects/BTMonitor/app/src/main/res/layout/assets_item_unit.xml" value="0.12771739130434784" />
+        <entry key="..\:/AndroidProjects/BTMonitor/app/src/main/res/layout/contain_assets_sensor.xml" value="0.20416666666666666" />
+        <entry key="..\:/AndroidProjects/BTMonitor/app/src/main/res/layout/content_battery.xml" value="0.20416666666666666" />
+        <entry key="..\:/AndroidProjects/BTMonitor/app/src/main/res/layout/layout_sensor_level_unit.xml" value="0.1" />
+        <entry key="..\:/AndroidProjects/BTMonitor/app/src/main/res/layout/list_sensor_level_unit.xml" value="0.1082427536231884" />
+        <entry key="..\:/AndroidProjects/BTMonitor/app/src/main/res/layout/ovelay_window.xml" value="0.12771739130434784" />
+        <entry key="..\:/AndroidProjects/BTMonitor/app/src/main/res/layout/welcome_slide1.xml" value="0.1" />
+        <entry key="app/src/main/res/drawable/$avd_hide_password__0.xml" value="0.34791666666666665" />
+        <entry key="app/src/main/res/drawable/login_bg.xml" value="0.34791666666666665" />
+        <entry key="app/src/main/res/layout/activity_login.xml" value="0.296195652173913" />
+        <entry key="app/src/main/res/layout/activity_main.xml" value="0.296195652173913" />
+        <entry key="app/src/main/res/layout/activity_paired_device.xml" value="0.296195652173913" />
+        <entry key="app/src/main/res/layout/contain_assets_sensor.xml" value="0.296195652173913" />
+        <entry key="app/src/main/res/layout/content_battery.xml" value="0.296195652173913" />
+        <entry key="app/src/main/res/layout/list_item.xml" value="0.296195652173913" />
+        <entry key="app/src/main/res/menu/menu_logout.xml" value="0.33177083333333335" />
+      </map>
+    </option>
+  </component>
+  <component name="ProjectRootManager" version="2" languageLevel="JDK_11" default="true" project-jdk-name="11" project-jdk-type="JavaSDK">
+    <output url="file://$PROJECT_DIR$/build/classes" />
+  </component>
+  <component name="ProjectType">
+    <option name="id" value="Android" />
+  </component>
+</project>

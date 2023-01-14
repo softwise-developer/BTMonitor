@@ -1,0 +1,46 @@
+{
+  "project_info": {
+    "project_number": "877366703902",
+    "project_id": "trumonitor-64d5c",
+    "storage_bucket": "trumonitor-64d5c.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:877366703902:android:3b3aa38942912727a77b0f",
+        "android_client_info": {
+          "package_name": "com.softwise.trumonitor"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "877366703902-ukkinn27a4pcio05hrttviknqp3vld7d.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBqEwh4cBdfF9L5DULrBAtaTUySc9T_W_k"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "877366703902-ukkinn27a4pcio05hrttviknqp3vld7d.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "877366703902-00vd7kmqra2mh7vlfd6t2s41js9hup6t.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.softwise.trumonitor"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <color name="bg_screen1">#2c69e4</color>
+    <color name="bg_screen2">#4586cc</color>
+    <color name="black">#ff000000</color>
+    <color name="blue">#ff3f51b5</color>
+    <color name="colorAccent">#5472d3</color>
+    <color name="colorBlue2">#22007dd6</color>
+    <color name="colorBlueLight">#8697f4</color>
+    <color name="colorGray">#bdb5b5</color>
+    <color name="colorGray200">#777a7a</color>
+    <color name="colorPrimary">#0d47a1</color>
+    <color name="colorPrimaryDark">#002171</color>
+    <color name="light_blue">#64b5f6</color>
+    <color name="light_blue1">#84c0f1</color>
+    <color name="purple_200">#ffbb86fc</color>
+    <color name="purple_500">#9c27b0</color>
+    <color name="purple_700">#7b1fa2</color>
+    <color name="red">#ff0000</color>
+    <color name="teal_200">#ff03dac5</color>
+    <color name="teal_700">#ff018786</color>
+    <color name="white">#ffffff</color>
+
+    <color name="dot_dark_screen1">#c8c6c6</color>
+    <color name="dot_dark_screen2">#c8c6c6</color>
+    <color name="dot_light_screen1">#f8f9fa</color>
+    <color name="dot_light_screen2">#f8f8f8</color>
+</resources>

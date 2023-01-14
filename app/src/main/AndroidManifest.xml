@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.softwise.trumonitor">
+
+    <!--<permission
+        android:name="C2D_MESSAGE"
+        android:protectionLevel="signature" />-->
+
+   <!-- <uses-feature
+        android:glEsVersion="20000"
+        android:required="true" />-->
+
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" />
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+    <uses-permission android:name="android.permission.READ_PHONE_NUMBERS" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+
+    <!--BLUETOOTH PERMISSION-->
+    <!-- Request legacy Bluetooth permissions on older devices. -->
+        <!-- Request legacy Bluetooth permissions on older devices. -->
+        <uses-permission android:name="android.permission.BLUETOOTH"
+            android:maxSdkVersion="30" />
+        <uses-permission android:name="android.permission.BLUETOOTH_ADMIN"
+            android:maxSdkVersion="30" />
+
+        <!-- Needed only if your app looks for Bluetooth devices.
+             If your app doesn't use Bluetooth scan results to derive physical
+             location information, you can strongly assert that your app
+             doesn't derive physical location. -->
+    <uses-permission android:name="android.permission.BLUETOOTH_SCAN"
+        android:usesPermissionFlags="neverForLocation" />
+
+
+    <!-- Needed only if your app makes the device discoverable to Bluetooth
+         devices. -->
+        <uses-permission android:name="android.permission.BLUETOOTH_ADVERTISE" />
+
+        <!-- Needed only if your app communicates with already-paired Bluetooth
+             devices. -->
+        <uses-permission android:name="android.permission.BLUETOOTH_CONNECT" />
+
+        <!-- Needed only if your app uses Bluetooth scan results to derive physical location. -->
+        <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+
+    <!--bibo01 : hardware option-->
+    <uses-feature android:name="android.hardware.bluetooth" android:required="true"/>
+    <uses-feature android:name="android.hardware.bluetooth_le" android:required="true"/>
+
+    <uses-permission android:name="com.google.android.c2dm.permission.RECEIVE" />
+    <uses-permission android:name="softwise.mechatronics.truBlueMonitor.permission.C2D_MESSAGE" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+
+
+    <application
+        android:name="com.softwise.trumonitor.myapp.BluetoothApplication"
+        android:allowBackup="true"
+        android:appComponentFactory="androidx.core.app.CoreComponentFactory"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.TrueTemp"
+        android:usesCleartextTraffic="true">
+        <activity
+            android:name="com.softwise.trumonitor.activity.LauncherActivity"
+            android:theme="@style/AppTheme" />
+        <activity
+            android:name="com.softwise.trumonitor.activity.IntroductionActivity"
+            android:exported="true"
+            android:theme="@style/IntroductionTheme">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name="com.softwise.trumonitor.activity.SensorTemperatureActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name="com.softwise.trumonitor.activity.ConnectivityActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme" />
+        <activity android:name="com.softwise.trumonitor.activity.PairedDeviceActivity" />
+        <activity
+            android:name="com.softwise.trumonitor.activity.LoginActivity"
+            android:theme="@style/AppTheme" />
+        <activity
+            android:name="com.softwise.trumonitor.activity.AssetsInfoActivity"
+            android:exported="false"
+            android:parentActivityName="com.softwise.trumonitor.activity.PairedDeviceActivity"
+            android:screenOrientation="portrait">
+            <intent-filter>
+                <action android:name="android.intent.action.SEARCH" />
+            </intent-filter>
+            <meta-data
+                android:name="android.app.searchable"
+                android:resource="@xml/searchable" />
+        </activity>
+        <activity
+            android:name="com.softwise.trumonitor.activity.SensorGraphActivity"
+            android:screenOrientation="landscape" />
+        <activity
+            android:name="com.softwise.trumonitor.activity.SensorGraphNewActivity"
+            android:screenOrientation="landscape" />
+
+        <receiver
+            android:name="com.softwise.trumonitor.bluetoothListener.ScreenActionReceiver"
+            android:exported="false">
+            <intent-filter android:priority="90000">
+                <action android:name="android.intent.action.USER_PRESENT" />
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="android.intent.action.SCREEN_ON" />
+                <action android:name="android.intent.action.USER_PRESENT" />
+                <action android:name="android.intent.action.USER_UNLOCKED" />
+            </intent-filter>
+        </receiver>
+        <service android:name="com.softwise.trumonitor.bluetoothListener.SerialService" />
+        <service
+            android:name="com.softwise.trumonitor.bluetoothListener.DataUploadService"
+            android:exported="true"
+            android:permission="android.permission.BIND_JOB_SERVICE" />
+        <service
+            android:name="com.softwise.trumonitor.bluetoothListener.MyService"
+            android:exported="false">
+            <intent-filter android:priority="90000">
+                <action android:name="android.intent.action.USER_PRESENT" />
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="android.intent.action.SCREEN_ON" />
+                <action android:name="android.intent.action.USER_PRESENT" />
+                <action android:name="android.intent.action.USER_UNLOCKED" />
+            </intent-filter>
+        </service>
+
+        <service android:name="com.softwise.trumonitor.bluetoothListener.FloatingWindow" />
+
+
+    </application>
+
+</manifest>
