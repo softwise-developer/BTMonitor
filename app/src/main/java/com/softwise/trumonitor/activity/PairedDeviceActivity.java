@@ -7,8 +7,10 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
@@ -31,6 +33,7 @@ import com.softwise.trumonitor.bluetoothListener.DataUploadService;
 import com.softwise.trumonitor.databinding.ActivityPairedDeviceBinding;
 import com.softwise.trumonitor.helper.DialogHelper;
 import com.softwise.trumonitor.implementer.SensorPresenter;
+import com.softwise.trumonitor.listeners.IBooleanListener;
 import com.softwise.trumonitor.models.PairedDevViewModel;
 import com.softwise.trumonitor.models.SensorIds;
 import com.softwise.trumonitor.receiver.NetworkChangeReceiver;
@@ -64,7 +67,6 @@ public class PairedDeviceActivity extends AppCompatActivity implements DeviceAda
         setUpViewModels();
         clickListeners();
         refreshToken();
-        Log.e("before", " Upload service");
         onStartJobIntentService(this.view);
     }
 
@@ -107,14 +109,11 @@ public class PairedDeviceActivity extends AppCompatActivity implements DeviceAda
     private void clickListeners() {
         this.binding.fab.setOnClickListener(new View.OnClickListener() {
             public final void onClick(View view) {
-                PairedDeviceActivity.this.lambda$clickListeners$0$PairedDeviceActivity(view);
+                startActivity(new Intent("android.settings.BLUETOOTH_SETTINGS"));
             }
         });
     }
 
-    public /* synthetic */ void lambda$clickListeners$0$PairedDeviceActivity(View view2) {
-        startActivity(new Intent("android.settings.BLUETOOTH_SETTINGS"));
-    }
 
     private void checkBluetoothConnectivity() {
         if (!getPackageManager().hasSystemFeature("android.hardware.bluetooth")) {
@@ -158,10 +157,13 @@ public class PairedDeviceActivity extends AppCompatActivity implements DeviceAda
     private void requestLocationPermission(Context context) {
         if (ContextCompat.checkSelfPermission(PairedDeviceActivity.this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_DENIED
                 && ContextCompat.checkSelfPermission(PairedDeviceActivity.this, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_DENIED) {
-           // if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                ActivityCompat.requestPermissions(PairedDeviceActivity.this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION}, 2);
-                return;
-           // }
+            // if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            ActivityCompat.requestPermissions(PairedDeviceActivity.this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION}, 2);
+            return;
+            // }
+        } else {
+            openPermissionSetting(context, getResources().getString(R.string.location_permission));
+
         }
     }
 
@@ -175,7 +177,24 @@ public class PairedDeviceActivity extends AppCompatActivity implements DeviceAda
                         , Manifest.permission.BLUETOOTH_SCAN, Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION}, REQUEST_CODE_BLUETOOTH_PERMISSIONS);
                 return;
             }
+        } else {
+            openPermissionSetting(context, getResources().getString(R.string.bluetooth_location_permission));
         }
+    }
+
+    private void openPermissionSetting(Context context, String message) {
+        DialogHelper.messageDialogPermission(PairedDeviceActivity.this, message, new IBooleanListener() {
+            @Override
+            public void callBack(boolean z) {
+                if (z) {
+                    Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                    Uri uri = Uri.fromParts("package", getPackageName(), null);
+                    intent.setData(uri);
+                    startActivity(intent);
+                }
+            }
+        });
     }
 
     private void checkBluetoothPermission(Context context) {

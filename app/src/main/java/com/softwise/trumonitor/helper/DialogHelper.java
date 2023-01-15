@@ -116,6 +116,22 @@ public class DialogHelper {
         }
     }
 
+    public static void messageDialogPermission(Context context, String str, IBooleanListener iBooleanListener) {
+        try {
+                AlertDialog create = new AlertDialog.Builder(new ContextThemeWrapper(context, R.style.MY_DIALOG)).create();
+                create.setTitle(context.getString(R.string.lbl_alert_message));
+                create.setMessage(str);
+                create.setButton(DialogInterface.BUTTON_POSITIVE,"Go To Settings",(dialogInterface, i) -> {
+                    iBooleanListener.callBack(true);
+                    create.dismiss();
+                });
+                create.setCancelable(false);
+                create.show();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
     public static void messageDialog(Context context, String str, String str2, IBooleanListener iBooleanListener) {
         try {
             AlertDialog create = new AlertDialog.Builder(new ContextThemeWrapper(context, R.style.MY_DIALOG)).create();
