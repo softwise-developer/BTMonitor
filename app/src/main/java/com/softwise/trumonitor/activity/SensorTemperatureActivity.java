@@ -75,7 +75,6 @@ public class SensorTemperatureActivity extends AppCompatActivity implements Sens
             }
             setTitle("Temperature");
             SPTrueTemp.saveCallingType(getApplicationContext(), "ST");
-            receiveTempDataByReceiver();
             this.entitySensorsList = new ArrayList();
             this.sensorPresenter = new SensorPresenter(this);
             this.mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
@@ -110,6 +109,7 @@ public class SensorTemperatureActivity extends AppCompatActivity implements Sens
                     }
                 }
             };
+            receiveTempDataByReceiver();
 
 
         } catch (Exception e) {

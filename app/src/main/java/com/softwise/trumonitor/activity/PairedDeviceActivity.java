@@ -139,9 +139,10 @@ public class PairedDeviceActivity extends AppCompatActivity implements DeviceAda
                 }
                 binding.txtEmptyData.setVisibility(View.VISIBLE);
                 binding.txtEmptyData.setText(getString(R.string.enabling_bluetooth));
+
             }
         });
-        this.viewModel.refreshPairedDevices();
+       this.viewModel.refreshPairedDevices();
     }
 
 

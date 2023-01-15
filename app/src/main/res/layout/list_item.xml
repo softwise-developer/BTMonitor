@@ -1,6 +1,41 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto" xmlns:aapt="http://schemas.android.com/aapt" android:id="@+id/list_item" android:background="?android:attr/selectableItemBackground" android:padding="@dimen/m_10" android:focusable="true" android:clickable="true" android:layout_width="match_parent" android:layout_height="wrap_content" android:minHeight="?android:attr/listPreferredItemHeight" android:paddingStart="?android:attr/listPreferredItemPaddingStart" android:paddingEnd="?android:attr/listPreferredItemPaddingEnd">
-    <ImageView android:id="@+id/img_bluetooth" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_margin="@dimen/m_10" android:src="@drawable/ic_baseline_bluetooth_audio_24"/>
-    <TextView android:textSize="@dimen/s_16" android:textStyle="bold" android:id="@+id/list_item_text1" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_margin="@dimen/m_5" android:layout_toEndOf="@+id/img_bluetooth"/>
-    <TextView android:id="@+id/list_item_text2" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="8dp" android:layout_below="@+id/list_item_text1" android:layout_alignStart="@+id/list_item_text1"/>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aapt="http://schemas.android.com/aapt"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/list_item"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="?android:attr/selectableItemBackground"
+    android:clickable="true"
+    android:focusable="true"
+    android:minHeight="?android:attr/listPreferredItemHeight"
+    android:padding="@dimen/m_10"
+    android:paddingStart="?android:attr/listPreferredItemPaddingStart"
+    android:paddingEnd="?android:attr/listPreferredItemPaddingEnd">
+
+    <ImageView
+        android:id="@+id/img_bluetooth"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/m_10"
+        android:src="@drawable/ic_baseline_bluetooth_audio_24" />
+
+    <TextView
+        android:id="@+id/list_item_text1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/m_5"
+        android:layout_toEndOf="@+id/img_bluetooth"
+        android:textSize="@dimen/s_16"
+        android:textStyle="bold"
+        android:textColor="@color/black"/>
+
+    <TextView
+        android:id="@+id/list_item_text2"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/list_item_text1"
+        android:layout_alignStart="@+id/list_item_text1"
+        android:layout_marginBottom="8dp"
+        android:textColor="@color/colorGray200"/>
 </RelativeLayout>

@@ -61,9 +61,9 @@
         android:name="com.softwise.trumonitor.myapp.BluetoothApplication"
         android:allowBackup="true"
         android:appComponentFactory="androidx.core.app.CoreComponentFactory"
-        android:icon="@mipmap/ic_launcher"
+        android:icon="@drawable/truemonitorimage"
         android:label="@string/app_name"
-        android:roundIcon="@mipmap/ic_launcher_round"
+        android:roundIcon="@drawable/truemonitorimage"
         android:supportsRtl="true"
         android:theme="@style/Theme.TrueTemp"
         android:usesCleartextTraffic="true">

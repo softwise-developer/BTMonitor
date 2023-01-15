@@ -43,12 +43,12 @@ public class PairedDevViewModel extends AndroidViewModel {
     public LiveData<Collection<BluetoothDevice>> getPairedDeviceList() {
         ArrayList arrayList = new ArrayList();
         if (this.mBluetoothAdapter != null) {
-            for (BluetoothDevice next : BluetoothAdapter.getDefaultAdapter().getBondedDevices()) {
-                if (next.getType() != 2 && next.getName().equalsIgnoreCase("ESP32test1")) {
-                    arrayList.add(next);
+            for (BluetoothDevice device : mBluetoothAdapter.getBondedDevices()) {
+                if (device.getType() !=2 && "ESP32test1".equalsIgnoreCase(device.getName())) {
+                    arrayList.add(device);
                 }
-                this.pairedDeviceList.setValue(arrayList);
             }
+            this.pairedDeviceList.setValue(arrayList);
         }
         return this.pairedDeviceList;
     }
