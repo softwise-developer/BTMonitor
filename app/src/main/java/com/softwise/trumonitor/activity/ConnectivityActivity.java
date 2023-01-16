@@ -49,6 +49,7 @@ public class ConnectivityActivity extends AppCompatActivity implements ServiceCo
     private String newline = TextUtil.newline_crlf;
     /* access modifiers changed from: private */
     public StringBuilder receivedMessage;
+    private int dataPoints;
 
     @Override
     public void getEntitySensor(EntitySensor entitySensor) {
@@ -182,7 +183,7 @@ public class ConnectivityActivity extends AppCompatActivity implements ServiceCo
             if (!"".equals(str) && str.trim().length() > 0) {
                 try {
                     this.receivedMessage.append(TextUtil.toCaretString(str.trim(), this.newline.length() != 0));
-                    if (this.receivedMessage.length() > 0) {
+                    /*if (this.receivedMessage.length() > 0) {
                         String valueOf = String.valueOf(this.receivedMessage.toString().charAt(this.receivedMessage.toString().length() - 1));
                         if (this.receivedMessage.toString().contains("(")) {
                             this.receivedMessage.toString().split("\\(");
@@ -201,8 +202,6 @@ public class ConnectivityActivity extends AppCompatActivity implements ServiceCo
                             }
                         } else if (valueOf.equals(")")) {
                             c = 0;
-                        }
-                        if (c == 0) {
                             stopCountDownTimer();
                             String[] split = this.receivedMessage.toString().split("\\(");
                             String trim = split[1].replace(")", "").trim();
@@ -216,6 +215,7 @@ public class ConnectivityActivity extends AppCompatActivity implements ServiceCo
                             });
                             send("send sensor id");
                             clearReceiveData();
+
                         } else if (c == 1) {
                             stopCountDownTimer();
                             DialogHelper.dismissProgressDialog();
@@ -232,6 +232,59 @@ public class ConnectivityActivity extends AppCompatActivity implements ServiceCo
                             });
                             send("Y");
                             clearReceiveData();
+                        }*/
+                    if (receivedMessage.length() > 0) {
+                        String last = String.valueOf(receivedMessage.toString().charAt(receivedMessage.toString().length() - 1));
+                        if (receivedMessage.toString().contains("(")) {
+                            String[] dataPointsAndDataArray = receivedMessage.toString().split("\\(");
+                            dataPoints = 0;
+                            if (!"".equals(dataPointsAndDataArray[0])) {
+                                dataPoints = Integer.parseInt(dataPointsAndDataArray[0]);
+                            }
+                        }
+                        switch (last) {
+                            case ")":// receive data from memory
+                                stopCountDownTimer();
+                                // 12(data)
+                                String[] dataPointsAndDataArray = receivedMessage.toString().split("\\(");
+                                if (!"".equals(dataPointsAndDataArray[0])) {
+                                    dataPoints = Integer.parseInt(dataPointsAndDataArray[0]);
+                                }
+                                Log.e("Data Points ", String.valueOf(dataPoints));
+                                String memoryData = dataPointsAndDataArray[1].replace(")", "").trim();
+                                //String memoryData = dataPointsAndDataArray[0].replace(")", "").trim();
+                                ServerDatabaseHelper.getInstance(getApplicationContext()).saveSensorDataFromMemoryToServer(getApplicationContext(), memoryData, true, entitySensor -> {
+                                    ConnectivityActivity.this.getEntitySensor(entitySensor);
+                                });
+                                send("send sensor id");
+                                clearReceiveData();
+                                dataPoints = 0;
+                                break;
+                            case "]":// sensor id
+                                stopCountDownTimer();
+                                DialogHelper.dismissProgressDialog();
+                                SPTrueTemp.saveSensorId(getApplicationContext(), receivedMessage.toString());
+                                // open assetInfo activity
+                                Intent intent = new Intent(ConnectivityActivity.this, AssetsInfoActivity.class);
+                                startActivity(intent);
+                                clearReceiveData();
+                                dataPoints = 0;
+                                break;
+                            case "_":
+                                stopCountDownTimer();
+                                //if (dataPoints == 0) {
+                                ServerDatabaseHelper.getInstance(getApplicationContext()).saveSensorDataFromMemoryToServer(getApplicationContext(), this.receivedMessage.toString(), false, new IObserveEntitySensorListener() {
+                                    public final void getEntitySensor(EntitySensor entitySensor) {
+                                        ConnectivityActivity.this.getEntitySensor(entitySensor);
+                                    }
+                                });
+                                  /*  Intent i = new Intent("sensorTemp");
+                                    i.putExtra("msg", receivedMessage.toString()); //EDIT: this passes a parameter to the receiver
+                                    sendBroadcast(i);*/
+                                send("Y");
+                                clearReceiveData();
+                                //}
+                                break;
                         }
                         if ("alarm warning level receive successfully".equals(this.receivedMessage.toString())) {
                             send(MethodHelper.getTimeInStringComma(System.currentTimeMillis()) + ",DateTime received");

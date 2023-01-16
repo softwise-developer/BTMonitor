@@ -15,6 +15,33 @@
         android:layout_height="wrap_content"
         android:orientation="vertical"
         android:padding="@dimen/m_10">
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/m_5">
+
+            <ImageView
+                android:id="@+id/img_edit_sensor"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:layout_marginStart="@dimen/m_5"
+                android:layout_marginTop="@dimen/m_5"
+                android:layout_marginEnd="@dimen/m_5"
+                android:layout_marginBottom="@dimen/m_5"
+                android:src="@drawable/ic_baseline_edit_24"
+                android:visibility="visible" />
+
+            <TextView
+                android:id="@+id/txt_sensor_id"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:gravity="center"
+                android:textSize="@dimen/s_20"
+                android:layout_marginStart="@dimen/m_10"
+                android:textStyle="bold" />
+        </RelativeLayout>
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -165,28 +192,5 @@
                 android:textStyle="bold" />
         </LinearLayout>
 
-        <RelativeLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_margin="@dimen/m_5">
-
-            <ImageView
-                android:id="@+id/img_edit_sensor"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentEnd="true"
-                android:layout_margin="@dimen/m_5"
-                android:src="@drawable/ic_baseline_edit_24"
-                android:visibility="visible" />
-
-            <TextView
-                android:id="@+id/txt_sensor_id"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:gravity="center"
-                android:textSize="@dimen/s_20"
-                android:textStyle="bold" />
-        </RelativeLayout>
     </LinearLayout>
 </androidx.cardview.widget.CardView>
