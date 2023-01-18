@@ -26,9 +26,36 @@ public class MyService extends Service {
     private Handler h;
     private Runnable r;
 
+
     @Override
     public IBinder onBind(Intent intent) {
+        Log.i(" OK Bind call ",String.valueOf(intent.getAction()));
         return null;
+    }
+
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+        NotificationCompat.Builder builder;
+        Context applicationContext = this;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            NotificationChannel notificationChannel = new NotificationChannel("blue_true_monitor", "BlueTruMonitorChannel",
+                    NotificationManager.IMPORTANCE_HIGH);
+
+            notificationChannel.setDescription("Bluetooth TruMonitor channel description");
+            notificationManager.createNotificationChannel(notificationChannel);
+            builder = new NotificationCompat.Builder(this, "blue_true_monitor");
+        }else {
+            builder = new NotificationCompat.Builder(this);
+        }
+        PendingIntent activity = PendingIntent.getActivity(applicationContext, 0, new Intent(applicationContext,
+                SensorTemperatureActivity.class), PendingIntent.FLAG_IMMUTABLE| PendingIntent.FLAG_UPDATE_CURRENT);
+
+        builder.setContentIntent(activity).setContentTitle("BluetoothTruMonitor").setTicker("Temperature recording is on")
+                .setSmallIcon(R.drawable.ic_baseline_notifications_active_24).setContentIntent(activity).setOngoing(true).build();
+        Notification notification = builder.build();
+        startForeground(1, notification);
     }
 
     /* access modifiers changed from: private */
@@ -54,25 +81,50 @@ public class MyService extends Service {
 
     @Override
     public int onStartCommand(final Intent intent, int i, int i2) {
-        if (intent.getAction().contains("start")) {
-            this.h = new Handler();
-            Runnable r2 = new Runnable() {
-                @Override
-                public void run() {
-                    MyService myService = MyService.this;
-                    myService.startForeground(101, myService.updateNotification());
-                    intent.getIntExtra("frequency", 0);
-                    MyService.this.startTempUpload(intent);
+        try {
+            if (intent != null) {
+                Log.i("OK Onstart call ", String.valueOf(intent.getAction()));
+                if (intent.getAction() != null) {
+                    if (intent.getAction().contains("start")) {
+                        this.h = new Handler();
+                        Runnable r2 = new Runnable() {
+                            @Override
+                            public void run() {
+                                startTempUpload(intent);
+                          /*  MyService myService = MyService.this;
+                            myService.startForeground(101, myService.updateNotification());
+                            intent.getIntExtra("frequency", 0);
+                            MyService.this.startTempUpload(intent);*/
+                            }
+                        };
+                        this.r = r2;
+                        this.h.post(r2);
+                    } else {
+                        removeAllNotification();
+                        this.h.removeCallbacks(this.r);
+                        stopForeground(true);
+                        stopSelf();
+                    }
+
+                } else {
+                    removeAllNotification();
+                    stopForeground(true);
+                    stopSelf();
                 }
-            };
-            this.r = r2;
-            this.h.post(r2);
-        } else {
-            this.h.removeCallbacks(this.r);
-            stopForeground(true);
-            stopSelf();
+            } else {
+                removeAllNotification();
+            }
+        }catch (Exception e)
+        {
+            e.printStackTrace();
         }
-        return START_STICKY;
+        return START_NOT_STICKY;
+    }
+
+    private void removeAllNotification()
+    {
+        NotificationManager notifManager= (NotificationManager) this.getSystemService(Context.NOTIFICATION_SERVICE);
+        notifManager.cancelAll();
     }
 
     public void startTempUpload(Intent intent) {

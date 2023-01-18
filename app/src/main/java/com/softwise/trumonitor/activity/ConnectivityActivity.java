@@ -253,8 +253,14 @@ public class ConnectivityActivity extends AppCompatActivity implements ServiceCo
                                 Log.e("Data Points ", String.valueOf(dataPoints));
                                 String memoryData = dataPointsAndDataArray[1].replace(")", "").trim();
                                 //String memoryData = dataPointsAndDataArray[0].replace(")", "").trim();
-                                ServerDatabaseHelper.getInstance(getApplicationContext()).saveSensorDataFromMemoryToServer(getApplicationContext(), memoryData, true, entitySensor -> {
-                                    ConnectivityActivity.this.getEntitySensor(entitySensor);
+                                if(memoryData.contains("Reading ID, Temperature"))
+                                {
+                                    memoryData.replace("Reading ID, Temperature ","").trim();
+                                }
+                                ServerDatabaseHelper.getInstance(getApplicationContext()).saveSensorDataFromMemoryToServer(getApplicationContext(), memoryData,true, new IObserveEntitySensorListener() {
+                                    public final void getEntitySensor(EntitySensor entitySensor) {
+                                        ConnectivityActivity.this.getEntitySensor(entitySensor);
+                                    }
                                 });
                                 send("send sensor id");
                                 clearReceiveData();

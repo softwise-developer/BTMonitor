@@ -1,18 +1,24 @@
-package com.softwise.trumonitor.helper;
+package com.softwise.trumonitor.helper ;
 
+import android.Manifest;
 import android.app.ActivityManager;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.location.Location;
 import android.media.MediaPlayer;
 import android.os.Build;
 import android.util.Log;
 
+import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
-import androidx.core.app.NotificationCompat;
-import androidx.exifinterface.media.ExifInterface;
+import androidx.core.content.ContextCompat;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.softwise.trumonitor.bluetoothListener.MyService;
 import com.softwise.trumonitor.database.DatabaseClient;
 import com.softwise.trumonitor.database.EntitySensor;
@@ -23,322 +29,284 @@ import com.softwise.trumonitor.database.dbListeners.SensorDatabaseCallback;
 import com.softwise.trumonitor.listeners.IBooleanListener;
 import com.softwise.trumonitor.listeners.IObserveEntitySensorListener;
 import com.softwise.trumonitor.models.Sensor;
-import com.softwise.trumonitor.serverUtils.ApiClients;
-import com.softwise.trumonitor.serverUtils.ServiceListeners.APIService;
 import com.softwise.trumonitor.utils.BluetoothConstants;
 import com.softwise.trumonitor.utils.ConnectionUtils;
 import com.softwise.trumonitor.utils.SPTrueTemp;
-import com.google.android.gms.location.FusedLocationProviderClient;
-import com.google.android.gms.location.LocationServices;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
-import com.google.gson.JsonObject;
+
 
 import java.util.List;
 
-import rx.Observer;
+import static com.softwise.trumonitor.utils.BluetoothConstants.ALARM_UPDATE_FREQUENCY;
 
-import rx.android.schedulers.AndroidSchedulers;
-import rx.schedulers.Schedulers;
 
 public class ServerDatabaseHelper {
-    static int cnt;
-    /* access modifiers changed from: private */
-    public static Context mCtx;
     private static ServerDatabaseHelper mInstance;
+    private static Context mCtx;
     private static MediaPlayer mediaPlayer;
+    // private DatabaseClient databaseClient;
     private FusedLocationProviderClient fusedLocationClient;
     private IObserveEntitySensorListener mIObserveEntitySensorListener;
 
-    private void uploadDataOnSever(EntitySensor entitySensor, boolean z, int i, SensorTempTime sensorTempTime) {
-    }
-
     public ServerDatabaseHelper(Context context) {
-        this.fusedLocationClient = LocationServices.getFusedLocationProviderClient(context);
+        //databaseClient = new DatabaseClient(context);
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(context);
         mCtx = context;
     }
 
     public static synchronized ServerDatabaseHelper getInstance(Context context) {
-        ServerDatabaseHelper serverDatabaseHelper;
-        synchronized (ServerDatabaseHelper.class) {
-            if (mInstance == null) {
-                mInstance = new ServerDatabaseHelper(context);
-            }
-            mCtx = context;
-            serverDatabaseHelper = mInstance;
+        if (mInstance == null) {
+            mInstance = new ServerDatabaseHelper(context);
         }
-        return serverDatabaseHelper;
+        mCtx = context;
+        return mInstance;
     }
 
-    public void saveSensorDataFromMemoryToServer(Context context, String str, boolean z,
-                                                 IObserveEntitySensorListener iObserveEntitySensorListener) {
-        String str2;
-        String str3;
-        int i;
-        String[] strArr;
-        String str4 = str;
-        Log.e("in next", "ok");
-        Log.e("in next", str4);
+
+    public void saveSensorDataFromMemoryToServer(Context context, String receiveData, boolean isMemoeryData, IObserveEntitySensorListener iObserveEntitySensorListener) {
         try {
             this.mIObserveEntitySensorListener = iObserveEntitySensorListener;
-            if (str4.contains("_")) {
-                Log.e("in next", "1");
-                String[] split = str4.split("_");
-                if (split.length > 0) {
-                    Log.e("in next", ExifInterface.GPS_MEASUREMENT_2D);
-                    char c = 0;
-                    int i2 = 0;
-                    while (i2 < split.length) {
-                        Log.e("in next", "for");
-                        String[] split2 = split[i2].trim().split("!");
-                        String[] split3 = split2[c].split("@");
-                        char c2 = 1;
-                        String[] split4 = split2[1].split(",");
-                        int parseInt = Integer.parseInt(split4[c]);
-                        SPTrueTemp.saveBatteryLevel(context, split4[1]);
-                        String str5 = split4[2];
-                        String str6 = split4[3];
-                        Log.e("UploadResponse", Integer.toString(split3.length));
-                        int i3 = 0;
-                        while (i3 < split3.length) {
-                            String[] split5 = split3[i3].split(",");
-                            Log.e("valueArray", split5[c]);
-                            String str7 = split5[c];
-                            String substring = split5[c2].substring(split5[c2].length() - 1);
-                            String replace = split5[c2].replace(substring, "");
-                            Log.e("tempValue", replace);
-                            String str8 = split5[1];
-                            if (z) {
-                                int parseInt2 = Integer.parseInt(str7);
-                                EntitySensor createSingleEntitySensor = MethodHelper.createSingleEntitySensor(context, parseInt2, replace, substring, str5 + " " + str6, str8, parseInt);
-                                Log.e("isMemory", "ok");
-                                getCurrentLocation(createSingleEntitySensor, true, 0);
-                                i = i3;
-                                str3 = str6;
-                                str2 = str5;
-                                strArr = split3;
+            // temp = "1,26.00C@-06/11/2020,13:29:00_";
+            // temp = "1,25.56C@!0,10.00,!12/1/2021,14:49:42_";
+            // 2,25.56C,AH@!21,0.00,18/1/2023,13:43:0_
+           /* dataPoints = 3;
+            receiveData = "1,25.81C@!1,0.00,21/1/2021,12:39:43_ 1,25.81C@!1,0.00,21/1/2021, 12:40:47_ 1,25.75C@!1,0.00,21/1/2021,12:41:51_";*/
+            if (receiveData.contains("_")) {
+                String[] memorySensorArray = receiveData.split("_");
+                if (memorySensorArray.length > 0) {
+                    for (int i = 0; i < memorySensorArray.length; i++) {
+                        String[] sensorAndDateArray = memorySensorArray[i].trim().split("!");
+                        String[] tempArray = sensorAndDateArray[0].split("@");
+                        String[] assetsDateTimeArray = sensorAndDateArray[1].split(",");
+                        int assetId = Integer.parseInt(assetsDateTimeArray[0]);
+                        String battery = assetsDateTimeArray[1];
+                        SPTrueTemp.saveBatteryLevel(context, battery);
+                        //17,0.00,16/3/2021,10:48:59
+                        String date = assetsDateTimeArray[2];
+                        String time = assetsDateTimeArray[3];
+                        for (int j = 0; j < tempArray.length; j++) {
+                            String[] valueArray = tempArray[j].split(",");
+                            String sensorId = valueArray[0];
+                            String unit = valueArray[1].substring(valueArray[1].length() - 1);
+                            String tempValue = valueArray[1].replace(unit, "".trim());
+                            String status = valueArray[2];
+                            // data received from memory
+                            // no need to save in local db
+                            // directly upload on server
+                            //if (dataPoint > 0) {
+                                 if(isMemoeryData){
+                                EntitySensor entitySensor = MethodHelper.createSingleEntitySensor(context, Integer.parseInt(sensorId), tempValue, unit, date + " " + time, status, assetId);
+                                //getSensorDataFromDB(context, Integer.parseInt(sensorId),assetId, tempValue, unit, sensorAndDateArray[1], true);
+                                //get location
+                                getCurrentLocation(entitySensor, true, 0);
                             } else {
-                                Log.e("isNotMemory", "ok");
-                                int parseInt3 = Integer.parseInt(str7);
-                                i = i3;
-                                str3 = str6;
-                                str2 = str5;
-                                strArr = split3;
-                                getSensorDataFromDB(context, parseInt3, parseInt, replace, substring, str8, str5 + " " + str6, false);
+                                getSensorDataFromDB(context, Integer.parseInt(sensorId), assetId, tempValue, unit, status, date + " " + time, false);
                             }
-                            i3 = i + 1;
-                            Context context2 = context;
-                            split3 = strArr;
-                            str6 = str3;
-                            str5 = str2;
-                            c2 = 1;
-                            c = 0;
                         }
-                        i2++;
-                        c = 0;
                     }
                 }
             }
-        } catch (Exception e) {
-            e.printStackTrace();
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
         }
     }
 
-    public void getSensorDataFromDB(Context context, int i, int i2, String str, String str2, String str3, String str4, boolean z) {
-        Log.e("insideggetsenfromDb", Integer.toString(i));
-        final int i3 = i;
-        final int i4 = i2;
-        final String str5 = str;
-        final String str6 = str2;
-        final String str7 = str4;
-        final String str8 = str3;
-        final boolean z2 = z;
-        int i5 = i;
-        DatabaseClient.getInstance(mCtx).getEntitySensorData(i, new ISingleSensorData() {
+    public void getSensorDataFromDB(Context context, int sensorId, int asset_id, String temp, String unit, String status, String time, boolean isFromMemory) {
+        // get sensor data from local db
+        //EntitySensor entitySensor = DatabaseClient.getInstance(mCtx).getEntitySensor(sensorId);
+        DatabaseClient.getInstance(mCtx).getEntitySensorData(sensorId, new ISingleSensorData() {
             @Override
             public void onLoadSensor(EntitySensor entitySensor) {
                 if (entitySensor != null) {
-                    entitySensor.setBle_sensor_id(i3);
-                    entitySensor.setAsset_id(i4);
-                    entitySensor.setTemp_value(str5);
-                    entitySensor.setUnit(str6);
-                    entitySensor.setTime(str7);
-                    entitySensor.setStatus(MethodHelper.sensorStatusVale(str8));
-                    Log.e("insidegetEntitySensorDa", Integer.toString(i3));
-                    if ("ST".equals(SPTrueTemp.getCallingType(ServerDatabaseHelper.mCtx))) {
+                    //if(!temp.equals(entitySensor.getTemp_value())) {
+                    entitySensor.setBle_sensor_id(sensorId);
+                    entitySensor.setAsset_id(asset_id);
+                    entitySensor.setTemp_value(temp);
+                    entitySensor.setUnit(unit);
+                    entitySensor.setTime(time);
+                    entitySensor.setStatus(MethodHelper.sensorStatusVale(status));
+                    //entitySensor.setStatus(MethodHelper.checkAlarmWaningValue(Float.parseFloat(temp), entitySensor));
+                    if ("ST".equals(SPTrueTemp.getCallingType(mCtx))) {
                         try {
-                            Intent intent = new Intent("sensorTemp");
-                            intent.putExtra(NotificationCompat.CATEGORY_MESSAGE, entitySensor);
-                            LocalBroadcastManager.getInstance(ServerDatabaseHelper.mCtx).sendBroadcast(intent);
-                        } catch (Exception e) {
-                            e.printStackTrace();
+                            Intent i = new Intent("sensorTemp");
+                            i.putExtra("msg", entitySensor); //EDIT: this passes a parameter to the receiver
+                            LocalBroadcastManager.getInstance(mCtx).sendBroadcast(i);
+                        } catch (Exception ex) {
+                            ex.printStackTrace();
                         }
                     }
-                    boolean z = z2;
-
-                    if (z) {
-                        ServerDatabaseHelper.this.getCurrentLocation(entitySensor, z, 0);
+                    if (isFromMemory) {
+                        getCurrentLocation(entitySensor, isFromMemory, 0);
                     } else {
-                        ServerDatabaseHelper.this.startTimeForFrequency(entitySensor, z);
+                        startTimeForFrequency(entitySensor, isFromMemory);
                     }
                 }
             }
         });
     }
 
-    /* access modifiers changed from: private */
-    public void startTimeForFrequency(EntitySensor entitySensor, boolean z) {
-        String str;
-        if (!entitySensor.isFlag()) {
-            return;
-        }
-        if (!z) {
-            if ("alarm_low".equals(entitySensor.getStatus()) || "alarm_high".equals(entitySensor.getStatus())) {
-                str = BluetoothConstants.ALARM_UPDATE_FREQUENCY;
+    private void startTimeForFrequency(EntitySensor entitySensor, boolean isFromMemory) {
+        if (entitySensor.isFlag()) {
+            if (!isFromMemory) {
+                String frequency = null;
+                if ("alarm_low".equals(entitySensor.getStatus()) || "alarm_high".equals(entitySensor.getStatus())) {
+                    // update data in every one min(00:01:00)
+                    frequency = ALARM_UPDATE_FREQUENCY;
+                    //MethodHelper.raisedAlarm(mCtx, 1);
+                }
+                // safe ,warning low ,warning high
+                else {
+                    // update data as per frequency set
+                    frequency = entitySensor.getUpdate_frequency();
+                    // if alarm warning safe then stop siren
+                    MethodHelper.stopAlarm();
+                }
+                checkFrequencyUpdateTime(entitySensor, frequency);
             } else {
-                str = entitySensor.getUpdate_frequency();
-                MethodHelper.stopAlarm();
+                // if data comes form memory then no need to check alarm / warning conditions
+                // save data in sensor temp table
+                // upload on server
+                getCurrentLocation(entitySensor, isFromMemory, 0);
             }
-            checkFrequencyUpdateTime(entitySensor, str);
+        }
+    }
+
+    private void checkFrequencyUpdateTime(EntitySensor entitySensor, String updateFrequency) {
+        int frequency = MethodHelper.convertStringTimeToSec(updateFrequency);
+        boolean result = MethodHelper.getUpdateTime(mCtx, updateFrequency,entitySensor);
+        if (result) {
+            DatabaseClient.getInstance(mCtx).updateSensorData(entitySensor);
+            getCurrentLocation(entitySensor, false, frequency);
+            mIObserveEntitySensorListener.getEntitySensor(entitySensor);
+        }
+    }
+
+
+    private void getCurrentLocation(EntitySensor entitySensor, boolean isFromMemory, int frequency) {
+        if (ActivityCompat.checkSelfPermission(mCtx, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(mCtx, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            // TODO: Consider calling
+            //    ActivityCompat#requestPermissions
+            // here to request the missing permissions, and then overriding
+            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+            //                                          int[] grantResults)
+            // to handle the case where the user grants the permission. See the documentation
+            // for ActivityCompat#requestPermissions for more details.
             return;
-        }
-        getCurrentLocation(entitySensor, z, 0);
-    }
-
-    private void checkFrequencyUpdateTime(final EntitySensor entitySensor, String str) {
-        Log.e("FrequencyUpdateTime", Integer.toString(MethodHelper.convertStringTimeToSec(str)));
-        boolean updateTime = MethodHelper.getUpdateTime(mCtx, str, entitySensor);
-        if (updateTime) {
-            int i = cnt;
-            if (i <= 4) {
-                cnt = i + 1;
-                Log.e("Result", String.valueOf(updateTime));
-                DatabaseClient.getInstance(mCtx).updateSensorData(entitySensor);
-                this.mIObserveEntitySensorListener.getEntitySensor(entitySensor);
-                ((APIService) ApiClients.getRetrofitInstanceForUpload(true).create(APIService.class))
-                        .uploadTempData(BluetoothConstants.CONTENT_TYPE, MethodHelper.getJsonArray(mCtx, entitySensor, false, false))
-                        .subscribeOn(Schedulers.newThread())
-                        .observeOn(AndroidSchedulers.mainThread()).subscribe(new Observer<JsonObject>() {
-                    @Override
-                    public void onCompleted() {
-                    }
-
-                    @Override
-                    public void onError(Throwable th) {
-                        th.printStackTrace();
-                    }
-
-                    @Override
-                    public void onNext(JsonObject jsonObject) {
-                        Log.e("UploadResponse11", jsonObject.get("message").toString());
-                        Log.e("of", Integer.toString(entitySensor.getBle_sensor_id()));
-                    }
-                });
-            }
-        } else if (((int) (System.currentTimeMillis() / 1000)) % 30 > 25) {
-            cnt = 0;
-        }
-    }
-
-    /* access modifiers changed from: private */
-    public void getCurrentLocation(final EntitySensor entitySensor, final boolean z, final int i) {
-        Log.e("in Location", "ok");
-        if (!(ActivityCompat.checkSelfPermission(mCtx, "android.permission.ACCESS_FINE_LOCATION") == 0 || ActivityCompat.checkSelfPermission(mCtx, "android.permission.ACCESS_COARSE_LOCATION") == 0)) {
-            Log.e("in Location", "1");
         }
         fusedLocationClient.getLastLocation().addOnCompleteListener(new OnCompleteListener<Location>() {
-           @Override
-            public void onComplete(Task<Location> task) {
-                String str;
-                String str2;
+            @Override
+            public void onComplete(@NonNull Task<Location> task) {
                 try {
-                    if (!task.isSuccessful() || task.getResult() == null) {
-                        str2 = SPTrueTemp.getLatitude(ServerDatabaseHelper.mCtx);
-                        str = SPTrueTemp.getLongitude(ServerDatabaseHelper.mCtx);
+                    // Got last known location. In some rare situations this can be null.
+                    String lat = "0.00", lng = "0.00";
+                    if (task.isSuccessful() && task.getResult() != null) {
+                        if (task.getResult().getLatitude() > 0) {
+                            lat = String.valueOf(task.getResult().getLatitude());
+                            SPTrueTemp.saveLatitude(mCtx, lat);
+                        }
+                        if (task.getResult().getLongitude() > 0) {
+                            lng = String.valueOf(task.getResult().getLongitude());
+                            SPTrueTemp.saveLongitude(mCtx, lng);
+                        }
+                        Log.e("LOCATION ", lat + "," + lng);
                     } else {
-                        str = "0.00";
-                        if (task.getResult().getLatitude() > 0.0d) {
-                            str2 = String.valueOf(task.getResult().getLatitude());
-                            SPTrueTemp.saveLatitude(ServerDatabaseHelper.mCtx, str2);
-                        } else {
-                            str2 = str;
-                        }
-                        if (task.getResult().getLongitude() > 0.0d) {
-                            str = String.valueOf(task.getResult().getLongitude());
-                            SPTrueTemp.saveLongitude(ServerDatabaseHelper.mCtx, str);
-                        }
-                        Log.e("LOCATION ", str2 + "," + str);
+                        // this condition is for
+                        // if lat lng get null then fetch lat lng from Shared preference
+                        lat = SPTrueTemp.getLatitude(mCtx);
+                        lng = SPTrueTemp.getLongitude(mCtx);
                     }
-                    ServerDatabaseHelper.this.saveAndUploadDataOnSever(entitySensor, str2, str, z, i);
-                } catch (Exception e) {
-                    e.printStackTrace();
+                    saveAndUploadDataOnSever(entitySensor, lat, lng, isFromMemory, frequency);
+                } catch (Exception ex) {
+                    ex.printStackTrace();
                 }
             }
         });
     }
 
-    /* access modifiers changed from: private */
-    public void saveAndUploadDataOnSever(EntitySensor entitySensor, String str, String str2, boolean z, int i) {
-        entitySensor.setLat(str);
-        entitySensor.setLng(str2);
-        SensorTempTime createSensorTempTime = MethodHelper.createSensorTempTime(entitySensor, str, str2, z);
+
+    private void saveAndUploadDataOnSever(EntitySensor entitySensor, String lat, String lng, boolean isFromMemory, int frequency) {
+        entitySensor.setLat(lat);
+        entitySensor.setLng(lng);
+        SensorTempTime sensorTempTime = MethodHelper.createSensorTempTime(entitySensor, lat, lng, isFromMemory);
         if (ConnectionUtils.getConnectivityStatusString(mCtx)) {
-            createSensorTempTime.setFlag(true);
-            createSensorTempTime.setAssets_id(entitySensor.getAsset_id());
+            sensorTempTime.setFlag(true);
+            sensorTempTime.setAssets_id(entitySensor.getAsset_id());
             entitySensor.setFlag(true);
+            // upload temp data on server
             if (!isMyServiceRunning(mCtx, MyService.class)) {
                 Log.e("Upload Temp Service ", "Stopped");
-                createSensorTempTime.setUploadPending(true);
-                onStartJobIntentService(mCtx, String.valueOf(entitySensor.getBle_sensor_id()), entitySensor, z, i);
+                sensorTempTime.setUploadPending(true);
+                onStartJobIntentService(mCtx, String.valueOf(entitySensor.getBle_sensor_id()), entitySensor, isFromMemory, frequency);
             } else {
                 Log.e("Upload Temp Service ", "Running");
-                onStartJobIntentService(mCtx, String.valueOf(entitySensor.getBle_sensor_id()), entitySensor, z, i);
+                onStartJobIntentService(mCtx, String.valueOf(entitySensor.getBle_sensor_id()), entitySensor, isFromMemory, frequency);
             }
         }
-        if (!z) {
-            DatabaseClient.getInstance(mCtx).addSensorTemp(createSensorTempTime);
+        // save temperature data in local database
+        if(!isFromMemory) {
+            DatabaseClient.getInstance(mCtx).addSensorTemp(sensorTempTime);
         }
+    }
+
+    private void uploadDataOnSever(EntitySensor entitySensor, boolean isFromMemory, int frequency, SensorTempTime sensorTempTime) {
+
+       /* JsonArray jsonArray = MethodHelper.getJsonArray(mCtx, entitySensor,isFromMemory,false);
+        if (jsonArray != null) {
+
+            //onStartJobIntentService(mCtx, String.valueOf(entitySensor.getBle_sensor_id()),jsonArray.toString());
+            // remove below code comment when api working properly
+            new SensorPresenter(mCtx).uploadData(String.valueOf(entitySensor.getBle_sensor_id()), jsonArray, new IBooleanListener() {
+                @Override
+                public void callBack(boolean result) {
+                    if (isFromMemory && result) {
+                        MethodHelper.count=0;
+                        //DatabaseClient.getInstance(mCtx).updateSensorData(entitySensor);
+                    }
+                }
+            });
+        }*/
     }
 
     public void stopService(Context context) {
         try {
-            Intent intent = new Intent(context, MyService.class);
-            intent.setAction(BluetoothConstants.ACTION.STOP_ACTION);
-            context.startService(intent);
-        } catch (Exception e) {
-            e.printStackTrace();
+            Intent stopIntent = new Intent(context, MyService.class);
+            stopIntent.setAction(BluetoothConstants.ACTION.STOP_ACTION);
+            context.startService(stopIntent);
+        } catch (Exception ex) {
+            ex.printStackTrace();
         }
     }
 
-    private boolean isMyServiceRunning(Context context, Class<?> cls) {
-        for (ActivityManager.RunningServiceInfo runningServiceInfo : ((ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE)).getRunningServices(Integer.MAX_VALUE)) {
-            if (cls.getName().equals(runningServiceInfo.service.getClassName())) {
+    private boolean isMyServiceRunning(Context context, Class<?> serviceClass) {
+        ActivityManager manager = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
+        for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
+            if (serviceClass.getName().equals(service.service.getClassName())) {
                 return true;
             }
         }
         return false;
     }
 
-    public void onStartJobIntentService(Context context, String str, EntitySensor entitySensor, boolean z, int i) {
-        Intent intent = new Intent(context, MyService.class);
-        intent.setAction(BluetoothConstants.ACTION.START_ACTION);
-        intent.putExtra("inputExtra", "Foreground Service Example in Android");
-        intent.putExtra("sensorId", str);
-        intent.putExtra("isFromMemory", z);
-        intent.putExtra("entitySensor", entitySensor);
-        intent.putExtra("frequency", i);
-        if (Build.VERSION.SDK_INT >= 26) {
-            context.startForegroundService(intent);
+    public void onStartJobIntentService(Context context, String sensorId, EntitySensor entitySensor, boolean isFromMemory, int frequency) {
+        Intent mIntent = new Intent(context, MyService.class);
+        mIntent.setAction(BluetoothConstants.ACTION.START_ACTION);
+        mIntent.putExtra("inputExtra", "Foreground Service Example in Android");
+        mIntent.putExtra("sensorId", sensorId);
+        mIntent.putExtra("isFromMemory", isFromMemory);
+        mIntent.putExtra("entitySensor", entitySensor);
+        mIntent.putExtra("frequency", frequency);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            context.startForegroundService(mIntent);
         } else {
-            context.startService(intent);
+            context.startService(mIntent);
         }
     }
 
-    public void saveSensorListInLocalDB(Context context, List<Sensor> list, final IBooleanListener iBooleanListener) {
-        DatabaseClient instance = DatabaseClient.getInstance(context);
-        List<EntitySensor> generateEntitySensor = MethodHelper.generateEntitySensor(context, list);
-        instance.deleteSensorTable();
-        instance.saveEntitySensorList(generateEntitySensor, new SensorDatabaseCallback() {
+    public void saveSensorListInLocalDB(Context context, List<Sensor> sensorList, IBooleanListener iBooleanListener) {
+        DatabaseClient dbClient = DatabaseClient.getInstance(context);
+        List<EntitySensor> entitySensorList = MethodHelper.generateEntitySensor(context, sensorList);
+        dbClient.deleteSensorTable();
+        dbClient.saveEntitySensorList(entitySensorList, new SensorDatabaseCallback() {
             @Override
             public void onSensorAdded() {
                 iBooleanListener.callBack(true);
@@ -351,8 +319,9 @@ public class ServerDatabaseHelper {
         });
     }
 
-    public void getSensorTemperature(int i, final ISensorTempCallback iSensorTempCallback) {
-        DatabaseClient.getInstance(mCtx).getSensorTemp(i, new ISensorTempCallback() {
+    // sensor temperature data
+    public void getSensorTemperature(int sensor_id, ISensorTempCallback iSensorTempCallback) {
+        DatabaseClient.getInstance(mCtx).getSensorTemp(sensor_id, new ISensorTempCallback() {
             @Override
             public void loadTemperature(List<SensorTempTime> list) {
                 iSensorTempCallback.loadTemperature(list);
