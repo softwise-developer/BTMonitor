@@ -13,6 +13,7 @@ import android.os.IBinder;
 import android.text.Html;
 import android.util.Log;
 import android.view.View;
+
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.NotificationCompat;
 import androidx.fragment.app.FragmentActivity;
@@ -63,7 +64,7 @@ public class ConnectivityActivity extends AppCompatActivity implements ServiceCo
     public void onSerialReadString(String str) {
     }
 
-   @Override
+    @Override
     public void onCreate(Bundle bundle) {
         super.onCreate(bundle);
         ActivityConnectivityBinding inflate = ActivityConnectivityBinding.inflate(getLayoutInflater());
@@ -95,8 +96,6 @@ public class ConnectivityActivity extends AppCompatActivity implements ServiceCo
             }
         });
     }
-
-
 
 
     private void loadService() {
@@ -246,25 +245,39 @@ public class ConnectivityActivity extends AppCompatActivity implements ServiceCo
                             case ")":// receive data from memory
                                 stopCountDownTimer();
                                 // 12(data)
+                                Log.e("Inside bracket ", String.valueOf(receivedMessage.toString()));
                                 String[] dataPointsAndDataArray = receivedMessage.toString().split("\\(");
                                 if (!"".equals(dataPointsAndDataArray[0])) {
                                     dataPoints = Integer.parseInt(dataPointsAndDataArray[0]);
                                 }
                                 Log.e("Data Points ", String.valueOf(dataPoints));
                                 String memoryData = dataPointsAndDataArray[1].replace(")", "").trim();
+                                String replacedData = memoryData;
                                 //String memoryData = dataPointsAndDataArray[0].replace(")", "").trim();
-                                if(memoryData.contains("Reading ID, Temperature"))
-                                {
-                                    memoryData.replace("Reading ID, Temperature ","").trim();
+                                if (memoryData.contains("Reading ID, Temperature")) {
+                                  replacedData =  memoryData.replaceAll("Reading ID, Temperature", "").trim();
+
                                 }
-                                ServerDatabaseHelper.getInstance(getApplicationContext()).saveSensorDataFromMemoryToServer(getApplicationContext(), memoryData,true, new IObserveEntitySensorListener() {
-                                    public final void getEntitySensor(EntitySensor entitySensor) {
-                                        ConnectivityActivity.this.getEntitySensor(entitySensor);
-                                    }
-                                });
-                                send("send sensor id");
-                                clearReceiveData();
-                                dataPoints = 0;
+                                if (memoryData.contains("Reading ID, Temperature ^M")) {
+                                    replacedData =   memoryData.replace("Reading ID, Temperature ^M", "").trim();
+                                }
+                                Log.e("Inside replace data ", replacedData);
+                                if (memoryData != "") {
+                                    ServerDatabaseHelper.getInstance(getApplicationContext()).saveSensorDataFromMemoryToServer(getApplicationContext(), replacedData, true, new IObserveEntitySensorListener() {
+                                        @Override
+                                        public final void getEntitySensor(EntitySensor entitySensor) {
+                                            send("send sensor id");
+                                            clearReceiveData();
+                                            dataPoints = 0;
+                                            ConnectivityActivity.this.getEntitySensor(entitySensor);
+                                        }
+                                    });
+                                } else {
+                                    send("send sensor id");
+                                    clearReceiveData();
+                                    dataPoints = 0;
+                                }
+
                                 break;
                             case "]":// sensor id
                                 stopCountDownTimer();
@@ -297,7 +310,7 @@ public class ConnectivityActivity extends AppCompatActivity implements ServiceCo
                         }
                         if ("date time receive successfully".equalsIgnoreCase(this.receivedMessage.toString())) {
                             Intent intent = new Intent("sensorData");
-                           // Intent intent = new Intent(ConnectivityActivity.this,AssetsInfoActivity.class);
+                            // Intent intent = new Intent(ConnectivityActivity.this,AssetsInfoActivity.class);
                             intent.putExtra("msg", this.receivedMessage.toString());
                             sendBroadcast(intent);
                             //startActivityForResult(intent,2);
@@ -411,13 +424,14 @@ public class ConnectivityActivity extends AppCompatActivity implements ServiceCo
                         SPTrueTemp.clearConnectedAddress(ConnectivityActivity.this);
                         System.exit(0);
                         finish();
-                    }                }
+                    }
+                }
             });
             return;
         }
         Intent intent = new Intent("sensorTemp");
         //intent.putExtra(MediaRouteProviderProtocol.SERVICE_DATA_ERROR, MediaRouteProviderProtocol.SERVICE_DATA_ERROR);
-        intent.putExtra("error","error");
+        intent.putExtra("error", "error");
         LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(intent);
     }
 
@@ -438,7 +452,8 @@ public class ConnectivityActivity extends AppCompatActivity implements ServiceCo
                     }
                     return;
                 }
-                finish();            }
+                finish();
+            }
         });
     }
 

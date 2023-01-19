@@ -94,11 +94,14 @@ public class ServerDatabaseHelper {
                             // directly upload on server
                             //if (dataPoint > 0) {
                                  if(isMemoeryData){
+                                     Log.e("Inside memoryyyy",tempValue);
                                 EntitySensor entitySensor = MethodHelper.createSingleEntitySensor(context, Integer.parseInt(sensorId), tempValue, unit, date + " " + time, status, assetId);
                                 //getSensorDataFromDB(context, Integer.parseInt(sensorId),assetId, tempValue, unit, sensorAndDateArray[1], true);
                                 //get location
+                                     Log.e("Inside memory Sensor",entitySensor.getSensor_name());
                                 getCurrentLocation(entitySensor, true, 0);
                             } else {
+                                     Log.e("Inside Else memory",tempValue);
                                 getSensorDataFromDB(context, Integer.parseInt(sensorId), assetId, tempValue, unit, status, date + " " + time, false);
                             }
                         }
@@ -183,6 +186,8 @@ public class ServerDatabaseHelper {
 
 
     private void getCurrentLocation(EntitySensor entitySensor, boolean isFromMemory, int frequency) {
+        final String[] lat = {"0.00"};
+        final String[] lng = { "0.00" };
         if (ActivityCompat.checkSelfPermission(mCtx, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(mCtx, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             // TODO: Consider calling
             //    ActivityCompat#requestPermissions
@@ -191,31 +196,35 @@ public class ServerDatabaseHelper {
             //                                          int[] grantResults)
             // to handle the case where the user grants the permission. See the documentation
             // for ActivityCompat#requestPermissions for more details.
+            Log.e("Inside location","Permission not granted");
             return;
         }
         fusedLocationClient.getLastLocation().addOnCompleteListener(new OnCompleteListener<Location>() {
             @Override
             public void onComplete(@NonNull Task<Location> task) {
                 try {
+                    Log.e("Inside location","Permission grant complete task");
                     // Got last known location. In some rare situations this can be null.
-                    String lat = "0.00", lng = "0.00";
+
                     if (task.isSuccessful() && task.getResult() != null) {
                         if (task.getResult().getLatitude() > 0) {
-                            lat = String.valueOf(task.getResult().getLatitude());
-                            SPTrueTemp.saveLatitude(mCtx, lat);
+                            lat[0] = String.valueOf(task.getResult().getLatitude());
+                            SPTrueTemp.saveLatitude(mCtx, lat[0]);
                         }
                         if (task.getResult().getLongitude() > 0) {
-                            lng = String.valueOf(task.getResult().getLongitude());
-                            SPTrueTemp.saveLongitude(mCtx, lng);
+                            lng[0] = String.valueOf(task.getResult().getLongitude());
+                            SPTrueTemp.saveLongitude(mCtx, lng[0]);
                         }
-                        Log.e("LOCATION ", lat + "," + lng);
+                        Log.e("Inside LOCATION ", lat[0] + "," + lng[0]);
                     } else {
                         // this condition is for
                         // if lat lng get null then fetch lat lng from Shared preference
-                        lat = SPTrueTemp.getLatitude(mCtx);
-                        lng = SPTrueTemp.getLongitude(mCtx);
+
+                        lat[0] = SPTrueTemp.getLatitude(mCtx);
+                        lng[0] = SPTrueTemp.getLongitude(mCtx);
+                        Log.e("Inside LOCATION SP", lat[0] + "," + lng[0]);
                     }
-                    saveAndUploadDataOnSever(entitySensor, lat, lng, isFromMemory, frequency);
+                    saveAndUploadDataOnSever(entitySensor, lat[0], lng[0], isFromMemory, frequency);
                 } catch (Exception ex) {
                     ex.printStackTrace();
                 }
@@ -234,11 +243,11 @@ public class ServerDatabaseHelper {
             entitySensor.setFlag(true);
             // upload temp data on server
             if (!isMyServiceRunning(mCtx, MyService.class)) {
-                Log.e("Upload Temp Service ", "Stopped");
+                Log.e("Inside Temp Service ", "Stopped");
                 sensorTempTime.setUploadPending(true);
                 onStartJobIntentService(mCtx, String.valueOf(entitySensor.getBle_sensor_id()), entitySensor, isFromMemory, frequency);
             } else {
-                Log.e("Upload Temp Service ", "Running");
+                Log.e("Inside Temp Service ", "Running");
                 onStartJobIntentService(mCtx, String.valueOf(entitySensor.getBle_sensor_id()), entitySensor, isFromMemory, frequency);
             }
         }

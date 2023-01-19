@@ -130,6 +130,7 @@ public class MyService extends Service {
     public void startTempUpload(Intent intent) {
         int parseInt = Integer.parseInt(intent.getStringExtra("sensorId"));
         Log.e("startTempUpload", Integer.toString(parseInt));
+        Log.e("Inside upload",String.valueOf(intent.getBooleanExtra("isFromMemory",false)));
         new SensorPresenter(getApplicationContext()).uploadData(String.valueOf(parseInt),
                 MethodHelper.getJsonArray(this, (EntitySensor) intent.getExtras().get("entitySensor"),
                         intent.getBooleanExtra("isFromMemory", false), false), new IBooleanListener() {

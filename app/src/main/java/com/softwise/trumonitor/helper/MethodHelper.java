@@ -294,7 +294,7 @@ public class MethodHelper {
     }
 
     public static EntitySensor createSingleEntitySensor(Context context, int i, String str, String str2, String str3, String str4, int i2) {
-        Log.e("insideCreateSinle", Integer.toString(i));
+        Log.e("Inside Create", Integer.toString(i));
         EntitySensor entitySensor = new EntitySensor();
         entitySensor.setBle_sensor_id(i);
         entitySensor.setSensor_name(BluetoothConstants.SENSOR_NAME + i);
