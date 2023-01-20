@@ -255,28 +255,25 @@ public class ConnectivityActivity extends AppCompatActivity implements ServiceCo
                                 String replacedData = memoryData;
                                 //String memoryData = dataPointsAndDataArray[0].replace(")", "").trim();
                                 if (memoryData.contains("Reading ID, Temperature")) {
-                                  replacedData =  memoryData.replaceAll("Reading ID, Temperature", "").trim();
+                                    replacedData = memoryData.replaceAll("Reading ID, Temperature", "").trim();
 
                                 }
                                 if (memoryData.contains("Reading ID, Temperature ^M")) {
-                                    replacedData =   memoryData.replace("Reading ID, Temperature ^M", "").trim();
+                                    replacedData = memoryData.replace("Reading ID, Temperature ^M", "").trim();
                                 }
                                 Log.e("Inside replace data ", replacedData);
                                 if (memoryData != "") {
                                     ServerDatabaseHelper.getInstance(getApplicationContext()).saveSensorDataFromMemoryToServer(getApplicationContext(), replacedData, true, new IObserveEntitySensorListener() {
                                         @Override
                                         public final void getEntitySensor(EntitySensor entitySensor) {
-                                            send("send sensor id");
-                                            clearReceiveData();
-                                            dataPoints = 0;
                                             ConnectivityActivity.this.getEntitySensor(entitySensor);
                                         }
                                     });
-                                } else {
-                                    send("send sensor id");
-                                    clearReceiveData();
-                                    dataPoints = 0;
                                 }
+                                send("send sensor id");
+                                clearReceiveData();
+                                dataPoints = 0;
+
 
                                 break;
                             case "]":// sensor id
